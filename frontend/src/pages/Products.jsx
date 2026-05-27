@@ -1,9 +1,302 @@
+import { useEffect, useState } from "react";
+
+import axios from "axios";
+
+import Sidebar from "../components/Sidebar";
+
+import Navbar from "../components/Navbar";
+
+
 function Products() {
+
+  const [products, setProducts] = useState([]);
+
+  const [name, setName] = useState("");
+
+  const [price, setPrice] = useState("");
+
+  const [quantity, setQuantity] = useState("");
+
+  const [category, setCategory] = useState("");
+
+  const [editingId, setEditingId] = useState(null);
+
+
+  // FETCH PRODUCTS
+
+  const fetchProducts = async () => {
+
+    try {
+
+      const response = await axios.get(
+        "http://localhost:5000/api/products"
+      );
+
+      setProducts(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+
+  // ADD PRODUCT
+
+  const addProduct = async () => {
+
+    try {
+
+      await axios.post(
+        "http://localhost:5000/api/products/add",
+        {
+          name,
+          price,
+          quantity,
+          category
+        }
+      );
+
+      fetchProducts();
+
+      setName("");
+      setPrice("");
+      setQuantity("");
+      setCategory("");
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+
+  // DELETE PRODUCT
+
+  const deleteProduct = async (id) => {
+
+    try {
+
+      await axios.delete(
+        `http://localhost:5000/api/products/${id}`
+      );
+
+      fetchProducts();
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+  const editProduct = (product) => {
+
+    setEditingId(product._id);
+
+    setName(product.name);
+
+    setPrice(product.price);
+
+    setQuantity(product.quantity);
+
+    setCategory(product.category);
+  };
+
+  
+
+  const updateProduct = async () => {
+
+    try {
+
+      await axios.put(
+
+        `http://localhost:5000/api/products/${editingId}`,
+
+        {
+          name,
+          price,
+          quantity,
+          category
+        }
+
+      );
+
+      fetchProducts();
+
+      setEditingId(null);
+
+      setName("");
+
+      setPrice("");
+
+      setQuantity("");
+
+      setCategory("");
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+  useEffect(() => {
+
+    fetchProducts();
+
+  }, []);
+
+
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold">
-        Products Page
-      </h1>
+
+    <div className="flex bg-gray-100 min-h-screen">
+
+      <Sidebar />
+
+      <div className="ml-64 w-full">
+
+        <Navbar />
+
+        <div className="p-6">
+
+          <h1 className="text-3xl font-bold mb-6">
+            Products
+          </h1>
+
+
+          {/* ADD PRODUCT FORM */}
+
+          <div className="bg-white p-6 rounded shadow mb-6">
+
+            <div className="grid grid-cols-4 gap-4">
+
+              <input
+                type="text"
+                placeholder="Product Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="border p-3 rounded"
+              />
+
+              <input
+                type="number"
+                placeholder="Price"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="border p-3 rounded"
+              />
+
+              <input
+                type="number"
+                placeholder="Quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="border p-3 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="border p-3 rounded"
+              />
+
+            </div>
+
+            <button
+              onClick={
+                editingId ? updateProduct : addProduct
+              }
+              className="bg-blue-600 text-white px-6 py-3 rounded mt-4"
+            >
+              {editingId ? "Update Product" : "Add Product"}
+            </button>
+
+          </div>
+
+
+          {/* PRODUCTS TABLE */}
+
+          <table className="w-full bg-white shadow rounded">
+
+            <thead className="bg-black text-white">
+
+              <tr>
+
+                <th className="p-4">Name</th>
+
+                <th className="p-4">Price</th>
+
+                <th className="p-4">Quantity</th>
+
+                <th className="p-4">Category</th>
+
+                <th className="p-4">Action</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {products.map((product) => (
+
+                <tr
+                  key={product._id}
+                  className="text-center border-b"
+                >
+
+                  <td className="p-4">
+                    {product.name}
+                  </td>
+
+                  <td className="p-4">
+                    ₹{product.price}
+                  </td>
+
+                  <td className="p-4">
+                    {product.quantity}
+                  </td>
+
+                  <td className="p-4">
+                    {product.category}
+                  </td>
+
+                  <td className="p-4">
+
+                    <button
+                      onClick={() => deleteProduct(product._id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded"
+                    >
+
+                      <button
+                        onClick={() => editProduct(product)}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                      >
+                        Edit
+                      </button>
+
+                      Delete
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
     </div>
   );
 }
