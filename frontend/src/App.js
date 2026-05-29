@@ -6,6 +6,9 @@ import Orders from "./pages/Orders";
 import Inventory from "./pages/Inventory";
 import Users from "./pages/Users";
 import Login from "./pages/Login";
+import Analytics from "./pages/Analytics";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Reports from "./pages/Reports";
 
 function App() {
   return (
@@ -14,10 +17,14 @@ function App() {
 
       <Routes>
 
+
         <Route path="/" element={<Login />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
-
+        <Route path="/dashboard" element={
+          <ProtectedRoute><Dashboard />
+          </ProtectedRoute>
+        }
+        />
         <Route path="/products" element={<Products />} />
 
         <Route path="/orders" element={<Orders />} />
@@ -25,6 +32,12 @@ function App() {
         <Route path="/inventory" element={<Inventory />} />
 
         <Route path="/users" element={<Users />} />
+
+        <Route path="/analytics" element={<Analytics />} />
+
+
+        <Route path="/reports" element={<Reports />} />
+
 
       </Routes>
 
