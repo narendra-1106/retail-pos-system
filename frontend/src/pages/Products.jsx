@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
-import axios from "axios";
+import api from "../api";
 
 import Sidebar from "../components/Sidebar";
-
 import Navbar from "../components/Navbar";
 
 
@@ -28,10 +27,7 @@ function Products() {
 
     try {
 
-      const response = await axios.get(
-        "http://localhost:5000/api/products"
-      );
-
+      const response = await api.get("/products");
       setProducts(response.data);
 
     } catch (error) {
@@ -48,15 +44,12 @@ function Products() {
 
     try {
 
-      await axios.post(
-        "http://localhost:5000/api/products/add",
-        {
-          name,
-          price,
-          quantity,
-          category
-        }
-      );
+      await api.post("/products/add", {
+        name,
+        price,
+        quantity,
+        category
+      });
 
       fetchProducts();
 
@@ -79,9 +72,7 @@ function Products() {
 
     try {
 
-      await axios.delete(
-        `http://localhost:5000/api/products/${id}`
-      );
+      await api.delete(`/products/${id}`);
 
       fetchProducts();
 
@@ -111,18 +102,12 @@ function Products() {
 
     try {
 
-      await axios.put(
-
-        `http://localhost:5000/api/products/${editingId}`,
-
-        {
-          name,
-          price,
-          quantity,
-          category
-        }
-
-      );
+      await api.put(`/products/${editingId}`, {
+        name,
+        price,
+        quantity,
+        category
+      });
 
       fetchProducts();
 
@@ -267,20 +252,20 @@ function Products() {
 
                   <td className="p-4">
 
-                    <button
-                      onClick={() => deleteProduct(product._id)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-                    >
-
+                      <div className="flex justify-center gap-2">
                       <button
                         onClick={() => editProduct(product)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded mr-2"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
                       >
                         Edit
                       </button>
-
-                      Delete
-                    </button>
+                      <button
+                        onClick={() => deleteProduct(product._id)}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                      >
+                        Delete
+                      </button>
+                    </div>
 
                   </td>
 

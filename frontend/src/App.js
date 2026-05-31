@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
@@ -20,23 +20,14 @@ function App() {
 
         <Route path="/" element={<Login />} />
 
-        <Route path="/dashboard" element={
-          <ProtectedRoute><Dashboard />
-          </ProtectedRoute>
-        }
-        />
-        <Route path="/products" element={<Products />} />
-
-        <Route path="/orders" element={<Orders />} />
-
-        <Route path="/inventory" element={<Inventory />} />
-
-        <Route path="/users" element={<Users />} />
-
-        <Route path="/analytics" element={<Analytics />} />
-
-
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+        <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+        <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+        <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
 
 
       </Routes>

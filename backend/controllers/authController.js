@@ -71,15 +71,21 @@ const loginUser = async (req, res) => {
       });
     }
 
+    const secret = process.env.JWT_SECRET || "secretkey";
     const token = jwt.sign(
       { id: user._id },
-      "secretkey",
+      secret,
       { expiresIn: "1d" }
     );
 
     res.status(200).json({
       message: "Login Successful",
-      token
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
     });
 
   } catch (error) {
@@ -91,7 +97,18 @@ const loginUser = async (req, res) => {
   }
 };
 
+// GET ALL USERS
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, "-password");
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
-  loginUser
+  loginUser,
+  getUsers
 };

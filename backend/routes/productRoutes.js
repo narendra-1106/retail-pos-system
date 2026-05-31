@@ -1,4 +1,5 @@
 const express = require("express");
+const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ const {
   updateProduct
 } = require("../controllers/productController");
 
+router.use(protect);
 
 router.post("/add", addProduct);
 
