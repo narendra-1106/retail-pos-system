@@ -12,7 +12,7 @@ function Login() {
 
         <div className="flex justify-center items-center h-screen bg-gray-900">
 
-            <div className="bg-white p-10 rounded-xl w-96 shadow-lg">
+            <div className="bg-white p-10 rounded-xl w-96 shadow-2xl">
 
                 <h1 className="text-3xl font-bold text-center mb-6">
                     Admin Login

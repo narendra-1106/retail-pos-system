@@ -35,6 +35,18 @@ function Sidebar() {
           </li>
         </Link>
 
+        <Link to="/analytics">
+          <li className="hover:bg-gray-800 p-3 rounded cursor-pointer">
+            Analytics
+          </li>
+        </Link>
+
+        <Link to="/reports">
+          <li className="hover:bg-gray-800 p-3 rounded cursor-pointer">
+            Reports
+          </li>
+        </Link>
+
         <Link to="/users">
           <li className="hover:bg-gray-800 p-3 rounded cursor-pointer">
             Users

@@ -2,7 +2,7 @@ function DashboardCard({ title, value }) {
 
   return (
 
-    <div className="bg-white p-6 rounded-xl shadow">
+    <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
 
       <h2 className="text-gray-500 text-lg">
         {title}

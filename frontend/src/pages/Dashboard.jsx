@@ -25,13 +25,44 @@ function Dashboard() {
 
             <DashboardCard title="Users" value="25" />
 
+            <div className="grid grid-cols-4 gap-6 mt-6">
+
+              <DashboardCard
+                title="Revenue"
+                value="₹1,20,000"
+              />
+
+              <DashboardCard
+                title="Products"
+                value="120"
+              />
+
+              <DashboardCard
+                title="Orders"
+                value="350"
+              />
+
+              <DashboardCard
+                title="Inventory Value"
+                value="₹5,50,000"
+              />
+
+              <DashboardCard
+                title="Customers"
+                value="85"
+              />
+
+            </div>
+
+              </div>
+
+            </div>
+
           </div>
 
         </div>
 
-      </div>
-
-    </div>
+    
   );
 }
 

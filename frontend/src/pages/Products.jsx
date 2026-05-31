@@ -211,7 +211,7 @@ function Products() {
               onClick={
                 editingId ? updateProduct : addProduct
               }
-              className="bg-blue-600 text-white px-6 py-3 rounded mt-4"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded mt-4"
             >
               {editingId ? "Update Product" : "Add Product"}
             </button>
@@ -221,8 +221,7 @@ function Products() {
 
           {/* PRODUCTS TABLE */}
 
-          <table className="w-full bg-white shadow rounded">
-
+          <table className="w-full bg-white rounded-xl shadow-lg">
             <thead className="bg-black text-white">
 
               <tr>
@@ -270,12 +269,12 @@ function Products() {
 
                     <button
                       onClick={() => deleteProduct(product._id)}
-                      className="bg-red-600 text-white px-4 py-2 rounded"
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
                     >
 
                       <button
                         onClick={() => editProduct(product)}
-                        className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded mr-2"
                       >
                         Edit
                       </button>
