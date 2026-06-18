@@ -2,7 +2,12 @@ const dns = require("dns");
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
-  const connString = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/retailPOS";
+  const connString = process.env.MONGO_URI;
+
+  if (!connString) {
+    console.error("MONGO_URI is not set. Set MONGO_URI in backend/.env or in your deployment environment.");
+    process.exit(1);
+  }
 
   if (connString.startsWith("mongodb+srv://")) {
     const dnsServers = process.env.DNS_SERVERS
@@ -21,10 +26,9 @@ const connectDB = async () => {
 
     if (connString.startsWith("mongodb+srv://")) {
       console.error(
-        "SRV resolution failed. Set DNS_SERVERS in .env to a public DNS resolver or use a mongodb:// connection string."
+        "SRV resolution failed. Set DNS_SERVERS in backend/.env or in your deployment environment, or verify your Atlas network access."
       );
     }
-    console.error("MongoDB Connection Error:", error.message || error);
     process.exit(1);
   }
 };
