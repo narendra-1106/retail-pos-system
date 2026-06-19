@@ -20,7 +20,7 @@ const validateRequest = require('../middleware/validateRequest');
 
 router.post("/register", authLimiter, [ body('name').notEmpty(), body('password').isLength({ min: 6 }) ], validateRequest, registerUser);
 
-router.post("/login", authLimiter, [ body('email').isEmail(), body('password').notEmpty() ], validateRequest, loginUser);
+router.post("/login", authLimiter, [ body('identifier').notEmpty(), body('password').notEmpty() ], validateRequest, loginUser);
 
 router.post("/send-otp", authLimiter, [ body('identifier').notEmpty() ], validateRequest, sendOtp);
 

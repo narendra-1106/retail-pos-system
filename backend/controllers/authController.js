@@ -59,20 +59,19 @@ const loginUser = async (req, res) => {
 
   try {
 
-    const { email, password } = req.body;
+    const { identifier, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ $or: [{ email: identifier }, { phone: identifier }] });
 
     if (!user) {
-      return res.status(400).json({
-        message: "Invalid Email"
-      });
+      return res.status(400).json({ message: "Invalid identifier" });
     }
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    if (!user.password) {
+      return res.status(400).json({ message: "No password set for this account. Log in with OTP." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -159,7 +158,15 @@ const sendOtp = async (req, res) => {
       }
     }
 
-    res.status(200).json({ message: "OTP sent" });
+    const canSendViaEmail = process.env.SMTP_HOST && process.env.SMTP_USER;
+    const canSendViaSms = process.env.TWILIO_SID && process.env.TWILIO_TOKEN && process.env.TWILIO_FROM;
+    const otpResponse = { message: "OTP sent" };
+
+    if (!canSendViaEmail && !canSendViaSms && process.env.NODE_ENV !== "production") {
+      otpResponse.otp = otpCode;
+    }
+
+    res.status(200).json(otpResponse);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -35,7 +35,7 @@ function Login() {
     }
 
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await api.post("/auth/login", { identifier: email, password });
       const { token, user } = response.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
@@ -55,9 +55,10 @@ function Login() {
       return;
     }
     try {
-      await api.post("/auth/send-otp", { identifier: email });
+      const response = await api.post("/auth/send-otp", { identifier: email });
       setOtpSent(true);
-      setSuccess("OTP sent. Check your email or phone.");
+      const otpNote = response.data?.otp ? ` OTP: ${response.data.otp}` : "";
+      setSuccess(`OTP sent. Check your email or phone.${otpNote}`);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send OTP.");
     }
