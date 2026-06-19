@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
 
 dotenv.config();
 
@@ -19,8 +20,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Backend Server Running 🚀");
+const frontendBuildPath = path.join(__dirname, "..", "frontend", "build");
+app.use(express.static(frontendBuildPath));
+
+app.get("/*", (req, res) => {
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ message: "API route not found" });
+  }
+  res.sendFile(path.join(frontendBuildPath, "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
