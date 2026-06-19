@@ -7,14 +7,20 @@ function Login() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      navigate("/dashboard", { replace: true });
+    const token = localStorage.getItem("token");
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    if (token && storedUser) {
+      if (storedUser.role === "admin") navigate("/admin/dashboard", { replace: true });
+      else navigate("/dashboard", { replace: true });
     }
   }, [navigate]);
 
@@ -33,9 +39,47 @@ function Login() {
       const { token, user } = response.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      navigate("/dashboard");
+      if (user.role === "admin") navigate("/admin/dashboard");
+      else navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
+    }
+  };
+
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    if (!email) {
+      setError("Please enter email or phone to receive OTP.");
+      return;
+    }
+    try {
+      await api.post("/auth/send-otp", { identifier: email });
+      setOtpSent(true);
+      setSuccess("OTP sent. Check your email or phone.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send OTP.");
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    if (!email || !otp) {
+      setError("Please provide identifier and OTP.");
+      return;
+    }
+    try {
+      const res = await api.post("/auth/verify-otp", { identifier: email, otp });
+      const { token, user } = res.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      if (user.role === "admin") navigate("/admin/dashboard");
+      else navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "OTP verification failed.");
     }
   };
 
@@ -129,25 +173,62 @@ function Login() {
             <button type="submit" className="w-full bg-green-600 text-white p-3 rounded">Create Account</button>
           </form>
         ) : (
-          <form onSubmit={handleLogin}>
-            <input
-              type="email"
-              placeholder="Enter Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-3 mb-3 rounded"
-            />
+          <>
+            <form onSubmit={handleLogin}>
+              <input
+                type="text"
+                placeholder="Email or Phone"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border p-3 mb-3 rounded"
+              />
 
-            <input
-              type="password"
-              placeholder="Enter Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border p-3 mb-4 rounded"
-            />
+              <div className="relative mb-3">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border p-3 rounded"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-2 text-sm text-gray-600"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
 
-            <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded">Login</button>
-          </form>
+              <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded mb-2">Login</button>
+            </form>
+
+            <div className="text-center my-2">or</div>
+
+            {!otpSent ? (
+              <form onSubmit={handleSendOtp}>
+                <input
+                  type="text"
+                  placeholder="Email or Phone"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border p-3 mb-3 rounded"
+                />
+                <button type="submit" className="w-full bg-indigo-600 text-white p-3 rounded">Send OTP</button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp}>
+                <input
+                  type="text"
+                  placeholder="Enter OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="w-full border p-3 mb-3 rounded"
+                />
+                <button type="submit" className="w-full bg-green-600 text-white p-3 rounded">Verify OTP</button>
+              </form>
+            )}
+          </>
         )}
       </div>
     </div>

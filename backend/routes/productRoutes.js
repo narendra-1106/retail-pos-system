@@ -1,7 +1,6 @@
 const express = require("express");
-const protect = require("../middleware/authMiddleware");
-
 const router = express.Router();
+const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddleware');
 
 const {
   addProduct,
@@ -10,13 +9,12 @@ const {
   updateProduct
 } = require("../controllers/productController");
 
-router.use(protect);
+// list products for authenticated users
+router.get('/', authenticateUser, getProducts);
 
-router.post("/add", addProduct);
+// admin-only product management
+router.post('/add', authenticateUser, authorizeAdmin, addProduct);
+router.put('/:id', authenticateUser, authorizeAdmin, updateProduct);
+router.delete('/:id', authenticateUser, authorizeAdmin, deleteProduct);
 
-router.get("/", getProducts);
-
-router.delete("/:id", deleteProduct);
-
-router.put("/:id", updateProduct);
 module.exports = router;
