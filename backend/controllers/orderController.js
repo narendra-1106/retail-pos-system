@@ -1,186 +1,108 @@
-const Order = require("../models/Order");
-const Product = require("../models/Product");
-const User = require("../models/User");
+const Order = require('../models/Order');
+const Product = require('../models/Product');
+const Customer = require('../models/Customer');
 
-// CREATE ORDER (Checkout Terminal)
+// Create order (user checkout)
 const createOrder = async (req, res) => {
   try {
-    const { items, subtotal, tax, discount, total, paymentMethod, customerName, cashierName } = req.body;
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: "No items in checkout cart" });
+    const { customerId, items, discount = 0, tax = 0, paymentMethod = 'cash' } = req.body;
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'Order items required' });
     }
 
-    // Double check inventory and update product quantities
-    for (const item of items) {
-      const product = await Product.findById(item.product);
-      if (!product) {
-        return res.status(404).json({ message: `Product not found: ${item.name}` });
-      }
-      if (product.quantity < item.quantity) {
-        return res.status(400).json({
-          message: `Insufficient stock for ${item.name}. Available: ${product.quantity}, Requested: ${item.quantity}`
-        });
-      }
+    // validate items and compute subtotal
+    let subtotal = 0;
+    const orderItems = [];
+    for (const it of items) {
+      const product = await Product.findById(it.product);
+      if (!product) return res.status(400).json({ message: `Product not found: ${it.product}` });
+      const qty = parseInt(it.quantity || 0, 10);
+      if (isNaN(qty) || qty <= 0) return res.status(400).json({ message: 'Invalid quantity' });
+      if (product.stock < qty) return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
+      const price = product.price;
+      subtotal += price * qty;
+      orderItems.push({ product: product._id, name: product.name, quantity: qty, price });
     }
 
-    // Save order
+    const totalAmount = subtotal - (discount || 0) + (tax || 0);
+
+    // decrement stock (atomicity note: consider transactions in prod)
+    for (const it of items) {
+      const qty = parseInt(it.quantity || 0, 10);
+      await Product.findByIdAndUpdate(it.product, { $inc: { stock: -qty } });
+    }
+
+    // optional customer
+    let customer = null;
+    if (customerId) customer = await Customer.findById(customerId);
+
     const order = await Order.create({
-      items,
+      orderId: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      customer: customer ? customer._id : undefined,
+      createdBy: req.user?.id,
+      items: orderItems,
       subtotal,
-      tax,
       discount,
-      total,
+      tax,
+      totalAmount,
       paymentMethod,
-      customerName: customerName || "Walk-in Customer",
-      cashierName: cashierName || "System Admin"
+      status: 'completed'
     });
 
-    // Update quantities in database
-    for (const item of items) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { quantity: -item.quantity }
-      });
-    }
-
-    res.status(201).json({
-      message: "Checkout Successful! Order Created.",
-      order
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(201).json({ message: 'Order created', order });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// GET ORDERS (Sales History Log)
+// Get orders (admin sees all, user sees own) with pagination
 const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 });
-    res.status(200).json(orders);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
+    const limit = Math.max(parseInt(req.query.limit || '20', 10), 1);
+    const filter = {};
+    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    if (req.user.role !== 'admin') filter.createdBy = req.user.id;
+    if (req.query.status) filter.status = req.query.status;
+
+    const total = await Order.countDocuments(filter);
+    const data = await Order.find(filter)
+      .populate('createdBy', 'name email')
+      .populate('customer', 'name phone email')
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ data, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// GET ORDER BY ID
 const getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
+    const order = await Order.findById(req.params.id).populate('createdBy', 'name email').populate('customer', 'name phone email');
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    if (req.user.role !== 'admin' && order.createdBy?._id.toString() !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
     res.status(200).json(order);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// GET SYSTEM STATS (Dashboard metrics aggregator)
+// Admin dashboard stats
 const getDashboardStats = async (req, res) => {
   try {
-    // 1. Total sales revenue
-    const salesAggregate = await Order.aggregate([
-      { $group: { _id: null, totalSales: { $sum: "$total" } } }
-    ]);
-    const totalSales = salesAggregate.length > 0 ? salesAggregate[0].totalSales : 0;
-
-    // 2. Count metrics
-    const ordersCount = await Order.countDocuments();
-    const productsCount = await Product.countDocuments();
-    const usersCount = await User.countDocuments();
-
-    // 3. Inventory Valuation (sum of price * quantity)
-    const inventoryValuationAggregate = await Product.aggregate([
-      { $group: { _id: null, valuation: { $sum: { $multiply: ["$price", "$quantity"] } } } }
-    ]);
-    const inventoryValue = inventoryValuationAggregate.length > 0 ? inventoryValuationAggregate[0].valuation : 0;
-
-    // 4. Low stock count and details (< 10)
-    const lowStockAlerts = await Product.find({ quantity: { $lt: 10 } });
-    const lowStockCount = lowStockAlerts.length;
-
-    // 5. Recent completed orders
-    const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5);
-
-    // 6. Sales trends by month (for Recharts)
-    // Dynamic analytics: group orders by month
-    const monthlySales = await Order.aggregate([
-      {
-        $group: {
-          _id: { $month: "$createdAt" },
-          sales: { $sum: "$total" }
-        }
-      },
-      { $sort: { "_id": 1 } }
-    ]);
-
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const salesTrend = monthlySales.map(item => ({
-      month: months[item._id - 1] || `Month ${item._id}`,
-      sales: item.sales
-    }));
-
-    // If sales trend is too small, inject mock data to make chart look stunningly premium
-    const baseSalesTrend = salesTrend.length > 0 ? salesTrend : [
-      { month: "Jan", sales: 12000 },
-      { month: "Feb", sales: 19000 },
-      { month: "Mar", sales: 32000 },
-      { month: "Apr", sales: 27000 },
-      { month: "May", sales: totalSales > 0 ? totalSales : 45000 }
-    ];
-
-    // 7. Payment Methods splits (for Donut Chart)
-    const paymentSplits = await Order.aggregate([
-      { $group: { _id: "$paymentMethod", count: { $sum: 1 }, revenue: { $sum: "$total" } } }
-    ]);
-
-    const formattedPaymentSplits = paymentSplits.map(item => ({
-      name: item._id,
-      value: item.revenue
-    }));
-
-    const finalPaymentSplits = formattedPaymentSplits.length > 0 ? formattedPaymentSplits : [
-      { name: "Cash", value: 30 },
-      { name: "Card", value: 45 },
-      { name: "UPI", value: 25 }
-    ];
-
-    // 8. Category Breakdown
-    // Join Orders and Products or summarize category-wise distribution based on order items
-    // Let's create a beautiful category-wise distribution
-    const categoryDistribution = await Order.aggregate([
-      { $unwind: "$items" },
-      {
-        $group: {
-          _id: "$items.name", // group by product name or if category is not in Order we can query Products
-          count: { $sum: "$items.quantity" },
-          revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } }
-        }
-      },
-      { $limit: 5 }
-    ]);
-
-    res.status(200).json({
-      totalSales,
-      ordersCount,
-      productsCount,
-      usersCount,
-      inventoryValue,
-      lowStockCount,
-      recentOrders,
-      lowStockAlerts,
-      salesTrend: baseSalesTrend,
-      paymentSplits: finalPaymentSplits,
-      categoryDistribution
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (req.user.role !== 'admin') return res.status(403).json({ message: 'Admin required' });
+    const totalRevenueAgg = await Order.aggregate([{ $group: { _id: null, totalRevenue: { $sum: '$totalAmount' }, totalOrders: { $sum: 1 } } }]);
+    const totalRevenue = totalRevenueAgg[0]?.totalRevenue || 0;
+    const totalOrders = totalRevenueAgg[0]?.totalOrders || 0;
+    const totalProducts = await Product.countDocuments();
+    const totalCustomers = await Customer.countDocuments();
+    res.status(200).json({ totalRevenue, totalOrders, totalProducts, totalCustomers });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-module.exports = {
-  createOrder,
-  getOrders,
-  getOrderById,
-  getDashboardStats
-};
+module.exports = { createOrder, getOrders, getOrderById, getDashboardStats };

@@ -1,19 +1,14 @@
-const express = require("express");
-const protect = require("../middleware/authMiddleware");
+const express = require('express');
 const router = express.Router();
+const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddleware');
+const { body } = require('express-validator');
+const validateRequest = require('../middleware/validateRequest');
 
-const {
-  createOrder,
-  getOrders,
-  getOrderById,
-  getDashboardStats
-} = require("../controllers/orderController");
+const { createOrder, getOrders, getOrderById, getDashboardStats } = require('../controllers/orderController');
 
-router.use(protect);
-
-router.post("/", createOrder);
-router.get("/", getOrders);
-router.get("/stats", getDashboardStats);
-router.get("/:id", getOrderById);
+router.post('/', authenticateUser, [ body('items').isArray({ min: 1 }).withMessage('items required') ], validateRequest, createOrder);
+router.get('/', authenticateUser, getOrders);
+router.get('/stats', authenticateUser, authorizeAdmin, getDashboardStats);
+router.get('/:id', authenticateUser, getOrderById);
 
 module.exports = router;
