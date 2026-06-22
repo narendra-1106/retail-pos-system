@@ -20,7 +20,12 @@ const getCustomers = async (req, res) => {
     const search = req.query.search || '';
 
     const filter = {};
-    if (search) filter.name = { $regex: search, $options: 'i' };
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ];
+    }
 
     const total = await Customer.countDocuments(filter);
     const data = await Customer.find(filter).skip((page - 1) * limit).limit(limit);

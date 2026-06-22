@@ -10,6 +10,10 @@ const listUsers = async (req, res) => {
     if (req.query.role) filter.role = req.query.role;
     if (req.query.status) filter.status = req.query.status;
 
+    if (req.query.search) {
+      const searchRegex = { $regex: req.query.search, $options: 'i' };
+      filter.$or = [{ name: searchRegex }, { email: searchRegex }];
+    }
     const total = await User.countDocuments(filter);
     const users = await User.find(filter).select('-password').skip((page - 1) * limit).limit(limit).sort({ createdAt: -1 });
     res.status(200).json({ data: users, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });

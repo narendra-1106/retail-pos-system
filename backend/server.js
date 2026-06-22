@@ -12,6 +12,8 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 const userRoutes = require("./routes/userRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 const helmet = require('helmet');
 const errorHandler = require('./middleware/errorHandler');
@@ -31,6 +33,8 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/reports", reportRoutes);
 
 const frontendBuildPath = path.join(__dirname, "..", "frontend", "build");
 app.use(express.static(frontendBuildPath));
@@ -43,11 +47,10 @@ app.use((req, res) => {
 });
 
 // centralized error handler
-app.use(require('./middleware/errorHandler'));
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
