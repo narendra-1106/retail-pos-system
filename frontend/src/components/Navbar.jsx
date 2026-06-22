@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { HiOutlineMoon, HiOutlineSun, HiOutlineLogout, HiOutlineMenuAlt2, HiOutlineChevronDown, HiOutlineUserCircle } from "react-icons/hi";
+import { HiOutlineMoon, HiOutlineSun, HiOutlineMenuAlt2, HiOutlineChevronDown, HiOutlineUserCircle } from "react-icons/hi";
 
 function Navbar() {
   const navigate = useNavigate();

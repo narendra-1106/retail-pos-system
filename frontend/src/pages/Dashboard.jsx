@@ -8,22 +8,17 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  BarChart,
-  Bar,
 } from "recharts";
 import {
   HiOutlineCash,
   HiOutlineCube,
   HiOutlineShoppingCart,
   HiOutlineUserGroup,
-  HiOutlineChartBar,
   HiOutlineExclamationCircle,
   HiOutlinePlus,
   HiOutlineSearch,
   HiOutlineTrash,
   HiOutlinePrinter,
-  HiOutlineUser,
-  HiOutlineCheck,
   HiOutlineKey
 } from "react-icons/hi";
 import Sidebar from "../components/Sidebar";
@@ -69,7 +64,6 @@ function Dashboard() {
   const [showReceipt, setShowReceipt] = useState(false);
 
   // Cashier stats / profile states
-  const [cashierOrders, setCashierOrders] = useState([]);
   const [personalRevenue, setPersonalRevenue] = useState(0);
   const [todayOrders, setTodayOrders] = useState(0);
   const [todayRevenue, setTodayRevenue] = useState(0);

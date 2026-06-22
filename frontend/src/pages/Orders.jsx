@@ -11,7 +11,6 @@ function Orders() {
   const [filterStatus, setFilterStatus] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [role, setRole] = useState("user");
 
   // Selected order details / invoice viewer states
   const [activeOrder, setActiveOrder] = useState(null);
@@ -24,6 +23,7 @@ function Orders() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchOrders();
   }, [page, filterStatus]);
 

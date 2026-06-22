@@ -2,7 +2,7 @@ import { useState } from "react";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-import { HiOutlineDownload, HiOutlineTrendingUp, HiOutlineDatabase, HiOutlineUserGroup, HiOutlineDocumentText } from "react-icons/hi";
+import { HiOutlineDownload, HiOutlineDocumentText } from "react-icons/hi";
 
 function Reports() {
   const [reportType, setReportType] = useState("sales"); // 'sales' | 'inventory' | 'customer'

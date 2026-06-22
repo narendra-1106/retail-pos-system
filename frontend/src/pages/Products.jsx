@@ -39,6 +39,7 @@ function Products() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchProducts();
   }, [page, search, filterCategory, filterStatus]);
 

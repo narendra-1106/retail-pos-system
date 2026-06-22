@@ -23,7 +23,9 @@ function Inventory() {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchInventoryLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchInventoryOverview();
   }, [page]);
 

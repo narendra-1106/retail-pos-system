@@ -26,7 +26,9 @@ function Users() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchEmployeeStats();
   }, [page, search, filterRole, filterStatus]);
 

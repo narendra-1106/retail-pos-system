@@ -34,6 +34,7 @@ function Customers() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchCustomers();
   }, [page, search]);
 
