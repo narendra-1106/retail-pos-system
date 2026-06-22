@@ -57,6 +57,7 @@ function Dashboard() {
   const [discountValue, setDiscountValue] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [cashReceived, setCashReceived] = useState(0);
+  const [cashierOrders, setCashierOrders] = useState([]);
   
   // Checkout & Invoice States
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
@@ -255,7 +256,6 @@ function Dashboard() {
 
       const res = await api.post("/orders", orderData);
       setCreatedOrder(res.data.order);
-      setCheckoutSuccess(true);
       setShowReceipt(true);
       setCart([]);
       setSelectedCustomerId("");

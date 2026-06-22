@@ -18,11 +18,6 @@ function Orders() {
   const receiptRef = useRef();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (user.role) setRole(user.role);
-  }, []);
-
-  useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchOrders();
   }, [page, filterStatus]);
