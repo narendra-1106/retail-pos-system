@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -22,14 +22,7 @@ function Inventory() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchInventoryLogs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchInventoryOverview();
-  }, [page]);
-
-  const fetchInventoryLogs = async () => {
+  const fetchInventoryLogs = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get(`/inventory/logs?page=${page}&limit=10`);
@@ -42,15 +35,13 @@ function Inventory() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
-  const fetchInventoryOverview = async () => {
+  const fetchInventoryOverview = useCallback(async () => {
     try {
-      // Get low stock alerts
       const alertRes = await api.get("/inventory/alerts?threshold=10");
       setAlerts(alertRes.data || []);
 
-      // Get all active products to calculate valuation & use in restock dropdown
       const prodRes = await api.get("/products?limit=1000");
       const list = prodRes.data.data || [];
       setProducts(list);
@@ -62,7 +53,12 @@ function Inventory() {
     } catch (err) {
       console.error("Error loading inventory stats:", err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchInventoryLogs();
+    fetchInventoryOverview();
+  }, [fetchInventoryLogs, fetchInventoryOverview]);
 
   const handleRestock = async (e) => {
     e.preventDefault();

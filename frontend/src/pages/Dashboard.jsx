@@ -57,10 +57,8 @@ function Dashboard() {
   const [discountValue, setDiscountValue] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [cashReceived, setCashReceived] = useState(0);
-  const [cashierOrders, setCashierOrders] = useState([]);
   
   // Checkout & Invoice States
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [showReceipt, setShowReceipt] = useState(false);
 
@@ -119,7 +117,6 @@ function Dashboard() {
       // Fetch cashier's personal orders
       const orderRes = await api.get("/orders?limit=10");
       const orders = orderRes.data.data || [];
-      setCashierOrders(orders);
 
       const completedOrders = orders.filter(o => o.status === "completed");
       const personalSalesTotal = completedOrders.reduce((sum, o) => sum + o.totalAmount, 0);

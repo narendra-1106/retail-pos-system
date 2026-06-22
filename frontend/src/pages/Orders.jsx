@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -17,12 +17,7 @@ function Orders() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const receiptRef = useRef();
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchOrders();
-  }, [page, filterStatus]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       const query = `/orders?page=${page}&limit=10&status=${filterStatus}`;
@@ -36,7 +31,11 @@ function Orders() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filterStatus]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order? This will restock all products and reverse customer loyalty points!")) return;

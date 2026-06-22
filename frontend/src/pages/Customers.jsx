@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -33,12 +33,7 @@ function Customers() {
     if (user.role) setRole(user.role);
   }, []);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchCustomers();
-  }, [page, search]);
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get(`/customers?page=${page}&limit=10&search=${search}`);
@@ -51,7 +46,11 @@ function Customers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, search]);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   const handleAddCustomer = async (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -38,21 +38,7 @@ function Products() {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchProducts();
-  }, [page, search, filterCategory, filterStatus]);
-
-  const fetchCategories = async () => {
-    try {
-      const res = await api.get("/categories");
-      setCategories(res.data.data || []);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-    }
-  };
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const query = `/products?page=${page}&limit=10&search=${search}&category=${filterCategory}&status=${filterStatus}`;
@@ -65,6 +51,19 @@ function Products() {
       console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
+    }
+  }, [page, search, filterCategory, filterStatus]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get("/categories");
+      setCategories(res.data.data || []);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
     }
   };
 

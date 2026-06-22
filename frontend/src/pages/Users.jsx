@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -25,14 +25,7 @@ function Users() {
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "user", status: "active" });
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchEmployeeStats();
-  }, [page, search, filterRole, filterStatus]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       let query = `/users?page=${page}&limit=10`;
@@ -47,16 +40,22 @@ function Users() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, search, filterRole, filterStatus]);
 
-  const fetchEmployeeStats = async () => {
+  const fetchEmployeeStats = useCallback(async () => {
     try {
       const res = await api.get("/orders/stats");
       setStats(res.data.employeeStats || []);
     } catch (err) {
       console.error("Unable to load employee stats", err);
     }
-  };
+  }, []);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    fetchUsers();
+    fetchEmployeeStats();
+  }, [fetchUsers, fetchEmployeeStats]);
 
   const resetForm = () => {
     setEditingId(null);
