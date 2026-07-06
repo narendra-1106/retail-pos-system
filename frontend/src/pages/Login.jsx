@@ -8,8 +8,6 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -46,43 +44,7 @@ function Login() {
     }
   };
 
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    if (!email) {
-      setError("Please enter email or phone to receive OTP.");
-      return;
-    }
-    try {
-      const response = await api.post("/auth/send-otp", { identifier: email });
-      setOtpSent(true);
-      const otpNote = response.data?.otp ? ` OTP: ${response.data.otp}` : "";
-      setSuccess(`OTP sent. Check your email or phone.${otpNote}`);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to send OTP.");
-    }
-  };
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    if (!email || !otp) {
-      setError("Please provide identifier and OTP.");
-      return;
-    }
-    try {
-      const res = await api.post("/auth/verify-otp", { identifier: email, otp });
-      const { token, user } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      if (user.role === "admin") navigate("/admin/dashboard");
-      else navigate("/dashboard");
-    } catch (err) {
-      setError(err.response?.data?.message || "OTP verification failed.");
-    }
-  };
 
   const handleRegister = async (event) => {
     event.preventDefault();
@@ -235,39 +197,7 @@ function Login() {
               </button>
             </form>
 
-            <div className="relative flex items-center py-6">
-              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-              <span className="flex-shrink-0 mx-4 text-xs font-bold uppercase tracking-wider text-slate-400">Or Login via OTP</span>
-              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-            </div>
 
-            {!otpSent ? (
-              <form onSubmit={handleSendOtp} className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Enter Email or Phone for OTP"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all text-slate-900 dark:text-white"
-                />
-                <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-md">
-                  Send One-Time Password
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Enter the OTP received"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-900 dark:text-white"
-                />
-                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-emerald-500/30">
-                  Verify & Login
-                </button>
-              </form>
-            )}
           </div>
         )}
       </div>
