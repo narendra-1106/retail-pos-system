@@ -5,6 +5,11 @@ const getApiBaseUrl = () => {
     const baseUrl = process.env.REACT_APP_API_URL.replace(/\/$/, ""); // Remove trailing slash
     return `${baseUrl}/api`;
   }
+  
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://localhost:5000/api";
+  }
+
   return "https://retail-pos-system-4o7s.onrender.com/api";
 };
 
