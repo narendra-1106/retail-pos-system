@@ -23,8 +23,7 @@ const app = express();
 connectDB();
 
 app.use(helmet());
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
-app.use(cors({ origin: FRONTEND_URL }));
+app.use(cors()); // Allow all origins for local network POS devices
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
