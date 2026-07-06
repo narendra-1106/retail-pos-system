@@ -18,8 +18,12 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Name, password and email or phone are required" });
     }
 
-    const userExists = await User.findOne({ $or: [{ email }, { phone }] });
-    if (userExists) return res.status(400).json({ message: "User already exists" });
+    const orConditions = [];
+    if (email) orConditions.push({ email });
+    if (phone) orConditions.push({ phone });
+
+    const userExists = await User.findOne({ $or: orConditions });
+    if (userExists) return res.status(400).json({ message: "User already exists with this email or phone" });
 
     const usersCount = await User.countDocuments();
 
@@ -36,13 +40,9 @@ const registerUser = async (req, res) => {
       }
     }
 
-    if (usersCount > 0 && !creatorIsAdmin) {
-      return res.status(403).json({ message: "Only admin can create new users" });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const roleToSet = usersCount === 0 ? (requestedRole === "admin" ? "admin" : "admin") : (requestedRole === "admin" && creatorIsAdmin ? "admin" : "user");
+    const roleToSet = usersCount === 0 ? "admin" : (requestedRole === "admin" && creatorIsAdmin ? "admin" : "user");
 
     const user = await User.create({ name, email, phone, password: hashedPassword, role: roleToSet });
 

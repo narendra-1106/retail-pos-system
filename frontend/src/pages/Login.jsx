@@ -35,6 +35,17 @@ function Login() {
     try {
       const response = await api.post("/auth/login", { identifier: email, password });
       const { token, user } = response.data;
+
+      if (mode === "admin" && user.role !== "admin") {
+        setError("Access Denied: You are not an Admin. Please use the Cashier login tab.");
+        return;
+      }
+      
+      if (mode === "user" && user.role !== "user") {
+        setError("Access Denied: You are an Admin. Please use the Admin login tab.");
+        return;
+      }
+
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       if (user.role === "admin") navigate("/admin/dashboard");
@@ -63,10 +74,23 @@ function Login() {
 
     try {
       const response = await api.post("/auth/register", { name, email, password });
-      setSuccess(response.data?.message || "Registered successfully. You can now log in.");
-      setMode("user");
-      setPassword("");
-      setConfirmPassword("");
+      
+      // Auto-login after successful registration
+      try {
+        const loginRes = await api.post("/auth/login", { identifier: email, password });
+        const { token, user } = loginRes.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        
+        if (user.role === "admin") navigate("/admin/dashboard");
+        else navigate("/dashboard");
+      } catch (loginErr) {
+        setSuccess("Registered successfully. Please log in.");
+        setMode("user");
+        setPassword("");
+        setConfirmPassword("");
+      }
+      
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");
     }
