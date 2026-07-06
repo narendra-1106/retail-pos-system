@@ -73,7 +73,7 @@ function Login() {
     }
 
     try {
-      const response = await api.post("/auth/register", { name, email, password });
+      await api.post("/auth/register", { name, email, password });
       
       // Auto-login after successful registration
       try {
