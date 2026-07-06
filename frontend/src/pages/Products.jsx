@@ -173,7 +173,7 @@ function Products() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-600 dark:text-blue-400">Inventory Catalog</p>
-              <h1 className="text-3xl font-extrabold tracking-tight">Products Management</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Products Management</h1>
             </div>
             {role === "admin" && (
               <button
