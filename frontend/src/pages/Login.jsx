@@ -111,125 +111,164 @@ function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-900">
-      <div className="bg-white p-8 rounded-xl w-96 shadow-2xl">
-        <div className="flex justify-between mb-6">
+    <div className="flex justify-center items-center min-h-screen bg-slate-50 dark:bg-slate-950 p-4 transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md p-8 sm:p-10 rounded-3xl shadow-xl dark:shadow-2xl border border-slate-100 dark:border-slate-800">
+        
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-blue-600 text-white font-bold text-2xl mb-4 shadow-lg shadow-blue-500/30">
+            RP
+          </div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            RetailPOS System
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium">
+            {mode === "register" ? "Create a new account to get started." : "Sign in to access your dashboard."}
+          </p>
+        </div>
+
+        <div className="flex p-1 mb-8 bg-slate-100 dark:bg-slate-950 rounded-2xl">
           <button
             onClick={() => { setMode("admin"); setError(""); setSuccess(""); }}
-            className={`px-3 py-1 rounded ${mode === "admin" ? "bg-blue-600 text-white" : "bg-gray-100"}`}
+            className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 ${mode === "admin" ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
           >
-            Admin Login
+            Admin
           </button>
           <button
             onClick={() => { setMode("user"); setError(""); setSuccess(""); }}
-            className={`px-3 py-1 rounded ${mode === "user" ? "bg-blue-600 text-white" : "bg-gray-100"}`}
+            className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 ${mode === "user" ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
           >
-            User Login
+            Cashier
           </button>
           <button
             onClick={() => { setMode("register"); setError(""); setSuccess(""); }}
-            className={`px-3 py-1 rounded ${mode === "register" ? "bg-blue-600 text-white" : "bg-gray-100"}`}
+            className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 ${mode === "register" ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
           >
-            New User
+            Register
           </button>
         </div>
 
-        <h1 className="text-2xl font-bold text-center mb-4">
-          {mode === "register" ? "Create Account" : mode === "admin" ? "Admin Login" : "User Login"}
-        </h1>
-
-        {error && <div className="text-red-600 mb-3">{error}</div>}
-        {success && <div className="text-green-600 mb-3">{success}</div>}
+        {error && <div className="p-3 mb-6 text-sm font-semibold text-rose-600 bg-rose-50 dark:bg-rose-950/50 dark:text-rose-400 rounded-2xl text-center border border-rose-100 dark:border-rose-900/50 animate-fadeIn">{error}</div>}
+        {success && <div className="p-3 mb-6 text-sm font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-400 rounded-2xl text-center border border-emerald-100 dark:border-emerald-900/50 animate-fadeIn">{success}</div>}
 
         {mode === "register" ? (
-          <form onSubmit={handleRegister}>
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border p-3 mb-3 rounded"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-3 mb-3 rounded"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border p-3 mb-3 rounded"
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border p-3 mb-4 rounded"
-            />
-            <button type="submit" className="w-full bg-green-600 text-white p-3 rounded">Create Account</button>
-          </form>
-        ) : (
-          <>
-            <form onSubmit={handleLogin}>
+          <form onSubmit={handleRegister} className="space-y-4 animate-fadeIn">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 ml-1">Full Name</label>
               <input
                 type="text"
-                placeholder="Email or Phone"
+                placeholder="e.g. John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 ml-1">Email Address</label>
+              <input
+                type="email"
+                placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border p-3 mb-3 rounded"
+                className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
               />
-
-              <div className="relative mb-3">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border p-3 rounded"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-2 text-sm text-gray-600"
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-
-              <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded mb-2">Login</button>
-            </form>
-
-            <div className="text-center my-2">or</div>
-
-            {!otpSent ? (
-              <form onSubmit={handleSendOtp}>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 ml-1">Password</label>
+              <input
+                type="password"
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 ml-1">Confirm Password</label>
+              <input
+                type="password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white mb-2"
+              />
+            </div>
+            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-blue-500/30">
+              Create Account
+            </button>
+          </form>
+        ) : (
+          <div className="animate-fadeIn">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 ml-1">Email or Phone</label>
                 <input
                   type="text"
-                  placeholder="Email or Phone"
+                  placeholder="Enter email or phone"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border p-3 mb-3 rounded"
+                  className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
                 />
-                <button type="submit" className="w-full bg-indigo-600 text-white p-3 rounded">Send OTP</button>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp}>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 ml-1 flex justify-between">
+                  <span>Password</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[10px] uppercase tracking-wider text-blue-600 hover:underline"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-blue-500/30 mt-2">
+                Secure Login
+              </button>
+            </form>
+
+            <div className="relative flex items-center py-6">
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+              <span className="flex-shrink-0 mx-4 text-xs font-bold uppercase tracking-wider text-slate-400">Or Login via OTP</span>
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+            </div>
+
+            {!otpSent ? (
+              <form onSubmit={handleSendOtp} className="space-y-4">
                 <input
                   type="text"
-                  placeholder="Enter OTP"
+                  placeholder="Enter Email or Phone for OTP"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all text-slate-900 dark:text-white"
+                />
+                <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-md">
+                  Send One-Time Password
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Enter the OTP received"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="w-full border p-3 mb-3 rounded"
+                  className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-900 dark:text-white"
                 />
-                <button type="submit" className="w-full bg-green-600 text-white p-3 rounded">Verify OTP</button>
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-emerald-500/30">
+                  Verify & Login
+                </button>
               </form>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -237,3 +276,4 @@ function Login() {
 }
 
 export default Login;
+
